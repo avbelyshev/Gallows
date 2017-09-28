@@ -1,4 +1,5 @@
-# require 'unicode_utils/downcase'
+# encoding: utf-8
+
 if Gem.win_platform?
   Encoding.default_external = Encoding.find(Encoding.locale_charmap)
   Encoding.default_internal = __ENCODING__
@@ -8,24 +9,24 @@ if Gem.win_platform?
   end
 end
 
-require_relative "game.rb"
-require_relative "result_printer.rb"
-require_relative "word_reader.rb"
+require 'unicode_utils/upcase'
 
-current_path = File.dirname(__FILE__)
+require_relative 'lib/game'
+require_relative 'lib/result_printer'
+require_relative 'lib/word_reader'
 
-printer = ResultPrinter.new
+VERSION = 'Игра виселица, версия 5. (c) Хороший программист'
 
-puts "Игра виселица.\n\n"
-sleep 1
+word_reader = WordReader.new
+words_file_name = "#{File.dirname(__FILE__)}/data/words.txt"
+word = word_reader.read_from_file(words_file_name)
 
-reader = WordReader.new
+game = Game.new(word)
+game.version = VERSION
 
-slovo = reader.read_from_file(current_path + '/data/words.txt')
+printer = ResultPrinter.new(game)
 
-game = Game.new(slovo)
-
-while game.status == 0 do
+while game.in_progress?
   printer.print_status(game)
   game.ask_next_letter
 end
